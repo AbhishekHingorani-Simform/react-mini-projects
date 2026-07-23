@@ -6,6 +6,7 @@ import FilterCard from './Filter/FilterCard';
 import GithubSearch from './GitHubUserSearch/GitHubSearch';
 import ColorGenerator from './RandomColorGenerator/ColorGenerator';
 import TextEditor from './TextEditor/TextEditor';
+import Motivator from './Motivator/Motivator';
 
 const TABS = [
   { key: 'emi', label: 'EMI Calculator', Component: EMICalculator },
@@ -14,6 +15,7 @@ const TABS = [
   { key: 'github', label: 'GitHub Search', Component: GithubSearch },
   { key: 'color', label: 'Color Generator', Component: ColorGenerator },
   { key: 'editor', label: 'Text Editor', Component: TextEditor },
+  { key: 'motivator', label: 'Motivator', Component: Motivator },
 ];
 
 function App() {
