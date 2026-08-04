@@ -7,6 +7,7 @@ import GithubSearch from './GitHubUserSearch/GitHubSearch';
 import ColorGenerator from './RandomColorGenerator/ColorGenerator';
 import TextEditor from './TextEditor/TextEditor';
 import Motivator from './Motivator/Motivator';
+import TimezoneCalculator from './TimezoneCalculator/TimezoneCalculator';
 
 const TABS = [
   { key: 'emi', label: 'EMI Calculator', Component: EMICalculator },
@@ -16,6 +17,7 @@ const TABS = [
   { key: 'color', label: 'Color Generator', Component: ColorGenerator },
   { key: 'editor', label: 'Text Editor', Component: TextEditor },
   { key: 'motivator', label: 'Motivator', Component: Motivator },
+  { key: 'timezone', label: 'Timezone Selector', Component: TimezoneCalculator },
 ];
 
 function App() {
