@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import TIMEZONES from './timezones';
+import { timeDiff } from './timeDiff';
 
 /**
  * TimezonePicker — a single searchable/filterable timezone combobox.
@@ -89,12 +90,34 @@ function TimezonePicker({ label, value, onChange, testId }) {
 }
 
 /**
- * TimezoneCalculator — renders two independent searchable timezone pickers
- * and stores the selected IANA timezone string for each in component state.
+ * Format an instant as the live local time in a given IANA zone.
+ * Uses Intl.DateTimeFormat so DST/offset are always resolved correctly.
+ */
+function formatLiveTime(timeZone, date) {
+  return new Intl.DateTimeFormat(undefined, {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  }).format(date);
+}
+
+/**
+ * TimezoneCalculator — renders two independent searchable timezone pickers,
+ * shows the live local time in each (ticking every second) and prominently
+ * displays the current gap between them, accounting for DST/offset.
  */
 function TimezoneCalculator() {
   const [zone1, setZone1] = useState('');
   const [zone2, setZone2] = useState('');
+  const [now, setNow] = useState(() => new Date());
+
+  // Tick once per second to keep the displayed clocks and gap live.
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="container py-4">
@@ -116,9 +139,17 @@ function TimezoneCalculator() {
                 testId="tz-picker-1"
               />
               {zone1 ? (
-                <p className="mb-0 text-success" data-testid="selected-zone-1">
-                  Selected: <strong>{zone1}</strong>
-                </p>
+                <>
+                  <p className="mb-1 text-success" data-testid="selected-zone-1">
+                    Selected: <strong>{zone1}</strong>
+                  </p>
+                  <div
+                    className="fs-3 fw-bold font-monospace"
+                    data-testid="live-time-1"
+                  >
+                    {formatLiveTime(zone1, now)}
+                  </div>
+                </>
               ) : (
                 <p className="mb-0 text-muted fst-italic">No timezone selected</p>
               )}
@@ -137,9 +168,17 @@ function TimezoneCalculator() {
                 testId="tz-picker-2"
               />
               {zone2 ? (
-                <p className="mb-0 text-success" data-testid="selected-zone-2">
-                  Selected: <strong>{zone2}</strong>
-                </p>
+                <>
+                  <p className="mb-1 text-success" data-testid="selected-zone-2">
+                    Selected: <strong>{zone2}</strong>
+                  </p>
+                  <div
+                    className="fs-3 fw-bold font-monospace"
+                    data-testid="live-time-2"
+                  >
+                    {formatLiveTime(zone2, now)}
+                  </div>
+                </>
               ) : (
                 <p className="mb-0 text-muted fst-italic">No timezone selected</p>
               )}
@@ -147,6 +186,19 @@ function TimezoneCalculator() {
           </div>
         </div>
       </div>
+
+      {/* ── Prominent time difference ── */}
+      {zone1 && zone2 && (
+        <div className="text-center mt-4 p-4 bg-light rounded shadow-sm">
+          <p className="text-muted text-uppercase small mb-1">Time difference</p>
+          <div className="display-3 fw-bold" data-testid="time-difference">
+            {timeDiff(zone1, zone2, now)}
+          </div>
+          <p className="text-muted mb-0" data-testid="time-difference-caption">
+            <strong>{zone2}</strong> relative to <strong>{zone1}</strong>
+          </p>
+        </div>
+      )}
     </div>
   );
 }

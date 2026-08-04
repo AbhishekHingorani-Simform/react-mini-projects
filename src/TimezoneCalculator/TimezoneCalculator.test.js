@@ -1,6 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import TimezoneCalculator from './TimezoneCalculator';
 
+// Helper: select a timezone in a given picker.
+function selectZone(testIdBase, query, iana) {
+  const input = screen.getByTestId(`${testIdBase}-input`);
+  fireEvent.focus(input);
+  fireEvent.change(input, { target: { value: query } });
+  fireEvent.mouseDown(screen.getByTestId(`${testIdBase}-option-${iana}`));
+}
+
 describe('TimezoneCalculator', () => {
   test('renders two timezone picker inputs', () => {
     render(<TimezoneCalculator />);
@@ -127,6 +135,53 @@ describe('TimezoneCalculator', () => {
       fireEvent.mouseDown(screen.getByTestId('tz-picker-1-option-America/New_York'));
 
       expect(input.value).toBe('America/New_York');
+    });
+  });
+
+  // ─── Live time & difference display ──────────────────────────────────────────
+
+  describe('Live time & difference', () => {
+    test('shows a live clock for a zone once it is selected', () => {
+      render(<TimezoneCalculator />);
+      expect(screen.queryByTestId('live-time-1')).not.toBeInTheDocument();
+
+      selectZone('tz-picker-1', 'Tokyo', 'Asia/Tokyo');
+
+      const clock = screen.getByTestId('live-time-1');
+      expect(clock).toBeInTheDocument();
+      // e.g. "01:23:45 PM" — hours:minutes:seconds present
+      expect(clock.textContent).toMatch(/\d{1,2}:\d{2}:\d{2}/);
+    });
+
+    test('difference is hidden until BOTH zones are selected', () => {
+      render(<TimezoneCalculator />);
+      expect(screen.queryByTestId('time-difference')).not.toBeInTheDocument();
+
+      selectZone('tz-picker-1', 'Tokyo', 'Asia/Tokyo');
+      // Still only one zone chosen → no difference yet
+      expect(screen.queryByTestId('time-difference')).not.toBeInTheDocument();
+
+      selectZone('tz-picker-2', 'London', 'Europe/London');
+      expect(screen.getByTestId('time-difference')).toBeInTheDocument();
+    });
+
+    test('difference renders in a compact "+/-Nh" (or "Same time") format', () => {
+      render(<TimezoneCalculator />);
+      selectZone('tz-picker-1', 'Tokyo', 'Asia/Tokyo');
+      selectZone('tz-picker-2', 'London', 'Europe/London');
+
+      const diff = screen.getByTestId('time-difference');
+      expect(diff.textContent).toMatch(/^(Same time|[+-]\d+h(\d+m)?)$/);
+    });
+
+    test('difference caption names both zones and their direction', () => {
+      render(<TimezoneCalculator />);
+      selectZone('tz-picker-1', 'New_York', 'America/New_York');
+      selectZone('tz-picker-2', 'Tokyo', 'Asia/Tokyo');
+
+      const caption = screen.getByTestId('time-difference-caption');
+      expect(caption).toHaveTextContent('Asia/Tokyo');
+      expect(caption).toHaveTextContent('America/New_York');
     });
   });
 });
