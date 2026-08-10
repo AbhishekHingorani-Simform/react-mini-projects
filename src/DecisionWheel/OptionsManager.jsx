@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * OptionsManager — manages the list of choices for the Decision Wheel.
@@ -9,14 +9,25 @@ import { useState } from 'react';
  *  • Per-item Remove button
  *  • Validation: rejects empty/whitespace-only and duplicate entries
  *    (case-insensitive); surfaces errors via an inline alert
+ *
+ * Props:
+ *  • onOptionsChange?(options) — optional callback fired whenever the list
+ *    of options changes, so a parent (e.g. DecisionWheel) can render a
+ *    reactive Wheel. The component still owns its own state, keeping it
+ *    fully usable with no props.
  */
-const OptionsManager = () => {
+const OptionsManager = ({ onOptionsChange }) => {
   const [options, setOptions]       = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [error, setError]           = useState('');
   // editIndex: null = not editing; number = index being edited
   const [editIndex, setEditIndex]   = useState(null);
   const [editValue, setEditValue]   = useState('');
+
+  // Notify a parent of the current options whenever they change.
+  useEffect(() => {
+    if (onOptionsChange) onOptionsChange(options);
+  }, [options, onOptionsChange]);
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
 
