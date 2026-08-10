@@ -8,6 +8,7 @@ import ColorGenerator from './RandomColorGenerator/ColorGenerator';
 import TextEditor from './TextEditor/TextEditor';
 import Motivator from './Motivator/Motivator';
 import TimezoneCalculator from './TimezoneCalculator/TimezoneCalculator';
+import DecisionWheel from './DecisionWheel/DecisionWheel';
 
 const TABS = [
   { key: 'emi', label: 'EMI Calculator', Component: EMICalculator },
@@ -18,6 +19,7 @@ const TABS = [
   { key: 'editor', label: 'Text Editor', Component: TextEditor },
   { key: 'motivator', label: 'Motivator', Component: Motivator },
   { key: 'timezone', label: 'Timezone Selector', Component: TimezoneCalculator },
+  { key: 'decisionwheel', label: 'Decision Wheel', Component: DecisionWheel },
 ];
 
 function App() {
